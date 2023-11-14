@@ -15,13 +15,11 @@ fn ex01_purist(input: &str) -> i32 {
 fn ex01_readable(input: &str) -> i32 {
     let mut counter = 0;
     for ch in input.chars() {
-        if ch == '(' {
-            counter += 1;
-        } else if ch == ')' {
-            counter -= 1;
-        } else {
-            panic!("Invalid input {ch}");
-        }
+        counter += match ch {
+            '(' => 1,
+            ')' => -1,
+            _ => panic!("Invalid input {ch}"),
+        };
     }
     counter
 }
