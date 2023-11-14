@@ -17,6 +17,10 @@ fn main() {
     let input = read_exercise_input(2);
     println!("ex02a: {}", ex02a(&input));
     println!("ex02b: {}", ex02b(&input));
+
+    let input = read_exercise_input(3);
+    println!("ex03a: {}", ex03a(&input));
+    println!("ex03b: {}", ex03b(&input));
 }
 
 fn ex01a_purist(input: &str) -> i32 {
@@ -76,4 +80,43 @@ fn ex02b(input: &str) -> u32 {
         2 * half_perimeters[0] + w * h * l
     }
     input.lines().map(|line| ribbon(line)).sum()
+}
+
+fn ex03a(input: &str) -> u32 {
+    _ex03(input, 1)
+}
+
+fn ex03b(input: &str) -> u32 {
+    _ex03(input, 2)
+}
+
+fn _ex03(input: &str, santas: usize) -> u32 {
+    let mut houses = vec![vec![true]];
+    let mut x = 1;
+    let mut y = 1;
+    let mut ox = 1;
+    let mut oy = 1;
+    let mut visited = 1;
+
+    for santa in 0..santas {
+        for code in input.chars().skip(santa).step_by(santas) {
+            match code {
+                '^' => y += 1,
+                'v' => y -= 1,
+                '<' => x -= 1,
+                '>' => x += 1,
+                _ => unreachable!("Invalid code {code}"),
+            };
+            if y == 0 { y = 1; oy += 1; houses.insert(0, vec![]); }
+            if x == 0 { x = 1; ox += 1; for row in &mut houses { row.insert(0, false); } }
+
+            if y > houses.len() { houses.push(vec![]); }
+            let row = &mut houses[y - 1];
+            if x > row.len() { row.resize(x, false); }
+            if !row[x - 1] { visited += 1; }
+            row[x - 1] = true;
+        }
+        x = ox; y = oy;
+    }
+    visited
 }
