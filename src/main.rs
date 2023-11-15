@@ -21,6 +21,14 @@ fn main() {
     let input = read_exercise_input(3);
     println!("ex03a: {}", ex03a(&input));
     println!("ex03b: {}", ex03b(&input));
+
+    // println!("ex04a: {}", ex04a("iwrupvqb"));
+    // println!("ex04b: {}", ex04b("iwrupvqb"));
+
+    let input = read_exercise_input(5);
+    println!("ex05a: {}", ex05a(&input));
+    println!("ex05b: {}", ex05b(&input));
+
 }
 
 fn ex01a_purist(input: &str) -> i32 {
@@ -119,4 +127,68 @@ fn _ex03(input: &str, santas: usize) -> u32 {
         x = ox; y = oy;
     }
     visited
+}
+
+// fn ex04a(input: &str) -> u32 {
+//     let mut n = 0;
+//     loop {
+//         let input = format!("{input}{n}");
+//         let hash = md5::compute(input.as_bytes());
+//         if hash[0] == 0 && hash[1] == 0 && hash[2] < 0x10 { break n; }
+//         n += 1;
+//     }
+// }
+//
+// fn ex04b(input: &str) -> u32 {
+//     let mut n = 0;
+//     loop {
+//         let input = format!("{input}{n}");
+//         let hash = md5::compute(input.as_bytes());
+//         if hash[0] == 0 && hash[1] == 0 && hash[2] == 0 { break n; }
+//         n += 1;
+//     }
+// }
+//
+
+const BAD_WORDS: [&str; 4] = ["ab", "cd", "pq", "xy"];
+fn ex05a(input: &str) -> u32 {
+    fn is_nice(input: &&str) -> bool {
+        !BAD_WORDS.iter().any(|word| input.contains(word)) &&
+            std::iter::zip(input.chars(), input.chars().skip(1)).any(|(a, b)| a == b) &&
+            input.chars().filter(|ch| "aeiou".contains(*ch)).collect::<Vec<_>>().len() >= 3
+    }
+    input.lines().filter(is_nice).count() as u32
+}
+
+fn ex05b(input: &str) -> u32 {
+    fn is_nice(line: &&str) -> bool {
+        c1(line) && c2(line)
+    }
+
+    fn c1(line: &&str) -> bool {
+        match line.char_indices().rev().nth(2) {
+            None => return false,
+            Some((last_index, _)) => {
+                for (start_index, _) in line[0..last_index].char_indices() {
+                    let end_index = start_index + line[start_index..].char_indices().nth(2).unwrap().0;
+                    if line[end_index..].contains(&line[start_index..end_index]) { return true; }
+                }
+            }
+        }
+        false
+    }
+
+    fn c2(line: &&str) -> bool {
+        match line.char_indices().rev().nth(1) {
+            None => return false,
+            Some((last_index, _)) => {
+                for (start_index, ch) in line[0..last_index].char_indices() {
+                    if line[start_index..].chars().nth(2).unwrap() == ch { return true; }
+                }
+            }
+        }
+        false
+    }
+
+    input.lines().filter(is_nice).count() as u32
 }
