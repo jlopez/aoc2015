@@ -1,5 +1,7 @@
 use std::fs;
 
+mod ex06;
+
 fn read_exercise_input(exercise: u32) -> String {
     let filename = format!("data/exercise_{:02}.txt", exercise);
     fs::read_to_string(&filename)
@@ -29,6 +31,9 @@ fn main() {
     println!("ex05a: {}", ex05a(&input));
     println!("ex05b: {}", ex05b(&input));
 
+    let input = read_exercise_input(6);
+    println!("ex06a: {}", ex06::a(&input));
+    println!("ex06b: {}", ex06::b(&input));
 }
 
 fn ex01a_purist(input: &str) -> i32 {
