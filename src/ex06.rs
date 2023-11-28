@@ -17,55 +17,26 @@ lazy_static! {
     static ref EX06_REGEX: Regex = Regex::new(r"^(turn on|turn off|toggle) (\d+),(\d+) through (\d+),(\d+)$").unwrap();
 }
 
-/// An iterator over the lines of the input.
-struct ParserIterator<'a> {
-    /// The lines iterator of the input.
-    lines: std::str::Lines<'a>,
-}
-
-impl <'a> ParserIterator<'a> {
-    /// Creates a new [`ParserIterator`] over the provided input.
-    ///
-    /// # Arguments
-    /// * `input` - The input to parse.
-    ///
-    /// # Returns
-    /// A new [`ParserIterator`] over the provided input.
-    ///
-    /// # Examples
-    /// ```
-    /// use aoc2015::ex06::ParserIterator;
-    /// let input = "turn on 0,0 through 1,1";
-    /// let mut parser_iterator = ParserIterator::new(input);
-    /// assert_eq!(parser_iterator.next(), Some(("turn on", 0, 0, 2, 2)));
-    /// assert_eq!(parser_iterator.next(), None);
-    /// ```
-    fn new(input: &'a str) -> Self {
-        ParserIterator { lines: input.lines() }
-    }
-}
-
-/// An iterator over the parsed lines of the input.
+/// Parses a line of the input.
 ///
-/// Each item is a tuple of the operation and the coordinates.
+/// # Arguments
+/// * `input` - The line to parse.
+///
+/// # Returns
+/// A tuple of the operation and the coordinates.
 /// The coordinates are 0-indexed, and the second pair is exclusive.
 /// For example, the line `turn on 0,0 through 1,1` will be parsed as
 /// `("turn on", 0, 0, 2, 2)`.
 ///
 /// # Panics
 /// Panics if the input is malformed.
-impl <'a> Iterator for ParserIterator<'a> {
-    type Item = (&'a str, usize, usize, usize, usize);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let line = self.lines.next()?;
-        let parts: Vec<_> = EX06_REGEX.captures(line).unwrap().iter().skip(1).map(|p| p.unwrap().as_str()).collect::<_>();
-        Some((parts[0],
-              parts[1].parse().unwrap(),
-              parts[2].parse().unwrap(),
-              parts[3].parse::<usize>().unwrap() + 1,
-              parts[4].parse::<usize>().unwrap() + 1))
-    }
+fn parser(input: &str) -> (&str, usize, usize, usize, usize) {
+    let parts: Vec<_> = EX06_REGEX.captures(input).unwrap().iter().skip(1).map(|p| p.unwrap().as_str()).collect::<_>();
+    (parts[0],
+     parts[1].parse().unwrap(),
+     parts[2].parse().unwrap(),
+     parts[3].parse::<usize>().unwrap() + 1,
+     parts[4].parse::<usize>().unwrap() + 1)
 }
 
 /// A grid of lights.
@@ -203,13 +174,15 @@ impl core::fmt::Debug for Grid {
 // then updating the grid according to the instructions.
 pub fn a(input: &str) -> u32 {
     let mut grid = Grid::new(1000, 1000);
-    for line in ParserIterator::new(input) {
+    for line in input.lines().map(parser) {
+        println!("{:?}", line);
         match line {
             ("turn on", x1, y1, x2, y2) => grid.update(Op::On, x1, y1, x2, y2),
             ("turn off", x1, y1, x2, y2) => grid.update(Op::Off, x1, y1, x2, y2),
             ("toggle", x1, y1, x2, y2) => grid.update(Op::Toggle, x1, y1, x2, y2),
             _ => unreachable!(),
         }
+        println!("{:?}", grid);
     }
     grid.count()
 }
